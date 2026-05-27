@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Painel Admin - Tecelagem</title>
+
+    <link rel="stylesheet"
+          href="/css/estilo.css">
+</head>
+
+<body>
+
+<script>
+
+if(
+!sessionStorage.getItem(
+"usuarioLogado"
+)
+){
+
+window.location.href=
+"/login.html";
+
+}
+
+</script>
+
+<nav>
+
+    <a href="/admin.html">
+        Início
+    </a>
+
+    <a href="/produtos.html">
+        Produtos
+    </a>
+
+    <a href="/usuarios.html">
+        Usuários
+    </a>
+
+    <a href="/estoque.html">
+        Estoque
+    </a>
+
+    <a href="#"
+       onclick="logout()">
+
+        Sair
+
+    </a>
+
+</nav>
+
+<div class="container">
+
+    <h2>
+        Painel Administrativo
+    </h2>
+
+    <h3>
+        Bem-vindo ao sistema Tecelagem
+    </h3>
+
+    <p>
+        Use o menu acima para gerenciar
+        produtos, usuários e estoque.
+    </p>
+
+    <hr>
+
+    <h3>
+        Resumo do sistema
+    </h3>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Produtos cadastrados:
+            </strong>
+
+            <span id="totalProdutos">
+                0
+            </span>
+        </p>
+
+    </div>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Usuários cadastrados:
+            </strong>
+
+            <span id="totalUsuarios">
+                0
+            </span>
+        </p>
+
+    </div>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Registros de estoque:
+            </strong>
+
+            <span id="totalEstoque">
+                0
+            </span>
+        </p>
+
+    </div>
+
+    <hr>
+
+    <h3>
+        Funcionalidades
+    </h3>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Produtos
+            </strong>
+        </p>
+
+        <p>
+            Cadastrar, listar,
+            editar e excluir produtos.
+        </p>
+
+        <a href="/produtos.html">
+
+            <button>
+                Gerenciar Produtos
+            </button>
+
+        </a>
+
+    </div>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Usuários
+            </strong>
+        </p>
+
+        <p>
+            Cadastrar, listar,
+            editar e excluir usuários.
+        </p>
+
+        <a href="/usuarios.html">
+
+            <button>
+                Gerenciar Usuários
+            </button>
+
+        </a>
+
+    </div>
+
+    <div class="card-usuario">
+
+        <p>
+            <strong>
+                Estoque
+            </strong>
+        </p>
+
+        <p>
+            Controlar quantidade
+            disponível dos produtos.
+        </p>
+
+        <a href="/estoque.html">
+
+            <button>
+                Gerenciar Estoque
+            </button>
+
+        </a>
+
+    </div>
+
+</div>
+
+<script>
+
+async function carregarResumo() {
+
+    const respostaProdutos =
+    await fetch("/produtos/total");
+
+    const totalProdutos =
+    await respostaProdutos.text();
+
+    const respostaUsuarios =
+    await fetch("/usuarios/total");
+
+    const totalUsuarios =
+    await respostaUsuarios.text();
+
+    const respostaEstoque =
+    await fetch("/estoque/total");
+
+    const totalEstoque =
+    await respostaEstoque.text();
+
+    document.getElementById(
+    "totalProdutos"
+    ).innerText = totalProdutos;
+
+    document.getElementById(
+    "totalUsuarios"
+    ).innerText = totalUsuarios;
+
+    document.getElementById(
+    "totalEstoque"
+    ).innerText = totalEstoque;
+
+}
+
+function logout(){
+
+    sessionStorage.removeItem(
+    "usuarioLogado"
+    );
+
+    window.location.href=
+    "/login.html";
+
+}
+
+carregarResumo();
+
+</script>
+
+</body>
+</html>

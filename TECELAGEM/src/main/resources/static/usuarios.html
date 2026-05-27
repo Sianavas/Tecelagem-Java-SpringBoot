@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuários - Tecelagem</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+
+<nav>
+    <a href="/admin.html">Início</a>
+    <a href="/produtos.html">Produtos</a>
+    <a href="/usuarios.html">Usuários</a>
+    <a href="/estoque.html">Estoque</a>
+    <a href="#"
+        onclick="logout()">  Sair
+    </a>
+</nav>
+
+<div class="container">
+    <h2>Gerenciar Usuários</h2>
+
+    <form id="formUsuario" class="form-grid">
+        <input type="text" id="usuario" placeholder="Usuário" required>
+        <input type="password" id="senha" placeholder="Senha">
+
+        <button type="submit" id="btnSalvar">
+            Cadastrar Usuário
+        </button>
+    </form>
+
+    <hr>
+
+    <h3>Usuários cadastrados</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuário</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaUsuarios"></tbody>
+    </table>
+</div>
+
+<script>
+async function carregarUsuarios() {
+    const resposta = await fetch("/usuarios");
+    const usuarios = await resposta.json();
+
+    const tbody = document.getElementById("listaUsuarios");
+    tbody.innerHTML = "";
+
+    usuarios.forEach(usuario => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${usuario.id}</td>
+            <td>${usuario.usuario}</td>
+            <td>
+                <button onclick="editarUsuario(${usuario.id})">
+                    Editar
+                </button>
+
+                <button onclick="excluirUsuario(${usuario.id})">
+                    Excluir
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+document.getElementById("formUsuario").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const id = this.dataset.id;
+
+    const usuario = {
+        usuario: document.getElementById("usuario").value,
+        senha: document.getElementById("senha").value
+    };
+
+    if (id) {
+        await fetch("/usuarios/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(usuario)
+        });
+
+        delete this.dataset.id;
+        document.getElementById("btnSalvar").innerText = "Cadastrar Usuário";
+    } else {
+        await fetch("/usuarios", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(usuario)
+        });
+    }
+
+    this.reset();
+    carregarUsuarios();
+});
+
+async function editarUsuario(id) {
+    const resposta = await fetch("/usuarios");
+    const usuarios = await resposta.json();
+
+    const usuario = usuarios.find(u => u.id === id);
+
+    document.getElementById("usuario").value = usuario.usuario;
+    document.getElementById("senha").value = "";
+
+    document.getElementById("formUsuario").dataset.id = id;
+    document.getElementById("btnSalvar").innerText = "Salvar Alteração";
+}
+
+async function excluirUsuario(id) {
+    if (confirm("Deseja excluir este usuário?")) {
+        await fetch("/usuarios/" + id, {
+            method: "DELETE"
+        });
+
+        carregarUsuarios();
+    }
+}
+
+carregarUsuarios();
+</script>
+<script>
+
+function logout(){
+
+sessionStorage.removeItem(
+"usuarioLogado"
+);
+
+window.location.href=
+"/login.html";
+
+}
+
+</script>
+</body>
+<script>
+
+if(
+!sessionStorage.getItem(
+"usuarioLogado"
+)
+){
+
+window.location.href=
+"/login.html";
+
+}
+
+</script>
+</html>

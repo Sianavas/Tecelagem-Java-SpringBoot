@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Estoque - Tecelagem</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+
+<script>
+if (!sessionStorage.getItem("usuarioLogado")) {
+    window.location.href = "/login.html";
+}
+</script>
+
+<nav>
+    <a href="/admin.html">Início</a>
+    <a href="/produtos.html">Produtos</a>
+    <a href="/usuarios.html">Usuários</a>
+    <a href="/estoque.html">Estoque</a>
+    <a href="#" onclick="logout()">Sair</a>
+</nav>
+
+<div class="container">
+    <h2>Controle de Estoque</h2>
+
+    <form id="formEstoque" class="form-grid">
+        <input type="text" id="codigoProduto" placeholder="Código do Produto" required>
+        <input type="number" id="quantidadeDisponivel" placeholder="Quantidade Disponível" required min="0">
+
+        <button type="submit" id="btnSalvar">
+            Cadastrar Estoque
+        </button>
+    </form>
+
+    <hr>
+
+    <h3>Estoque cadastrado</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código Produto</th>
+                <th>Quantidade Disponível</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaEstoque"></tbody>
+    </table>
+</div>
+
+<script>
+function logout() {
+    sessionStorage.removeItem("usuarioLogado");
+    window.location.href = "/login.html";
+}
+
+async function carregarEstoque() {
+    const resposta = await fetch("/estoque");
+    const estoque = await resposta.json();
+
+    const tbody = document.getElementById("listaEstoque");
+    tbody.innerHTML = "";
+
+    estoque.forEach(item => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.codigoProduto}</td>
+            <td>${item.quantidadeDisponivel}</td>
+            <td>
+                <button onclick="editarEstoque(${item.id})">
+                    Editar
+                </button>
+
+                <button onclick="excluirEstoque(${item.id})">
+                    Excluir
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+document.getElementById("formEstoque").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const id = this.dataset.id;
+
+    const estoque = {
+        codigoProduto: document.getElementById("codigoProduto").value,
+        quantidadeDisponivel: document.getElementById("quantidadeDisponivel").value
+    };
+
+    if (id) {
+        await fetch("/estoque/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(estoque)
+        });
+
+        delete this.dataset.id;
+        document.getElementById("btnSalvar").innerText = "Cadastrar Estoque";
+    } else {
+        await fetch("/estoque", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(estoque)
+        });
+    }
+
+    this.reset();
+    carregarEstoque();
+});
+
+async function editarEstoque(id) {
+    const resposta = await fetch("/estoque");
+    const estoque = await resposta.json();
+
+    const item = estoque.find(e => e.id === id);
+
+    document.getElementById("codigoProduto").value = item.codigoProduto;
+    document.getElementById("quantidadeDisponivel").value = item.quantidadeDisponivel;
+
+    document.getElementById("formEstoque").dataset.id = id;
+    document.getElementById("btnSalvar").innerText = "Salvar Alteração";
+}
+
+async function excluirEstoque(id) {
+    if (confirm("Deseja excluir este registro de estoque?")) {
+        await fetch("/estoque/" + id, {
+            method: "DELETE"
+        });
+
+        carregarEstoque();
+    }
+}
+
+carregarEstoque();
+</script>
+
+</body>
+</html>

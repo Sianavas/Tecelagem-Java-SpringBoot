@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Produtos - Tecelagem</title>
+    <link rel="stylesheet" href="/css/estilo.css">
+</head>
+<body>
+
+<nav>
+    <a href="/admin.html">Início</a>
+    <a href="/produtos.html">Produtos</a>
+    <a href="/usuarios.html">Usuários</a>
+    <a href="/estoque.html">Estoque</a>
+    <a href="/login.html">Sair</a>
+</nav>
+
+<div class="container">
+    <h2>Gerenciar Produtos</h2>
+
+    <form id="formProduto" class="form-grid">
+        <input type="text" id="codigo" placeholder="Código">
+        <input type="text" id="tipo" placeholder="Tipo" required>
+        <input type="text" id="tamanho" placeholder="Tamanho" maxlength="2" required>
+        <input type="number" id="preco" placeholder="Preço" step="0.01">
+        <input type="text" id="descricao" placeholder="Descrição">
+
+        <button type="submit" id="btnSalvar">
+            Cadastrar Produto
+        </button>
+    </form>
+
+    <hr>
+
+    <h3>Produtos cadastrados</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Código</th>
+                <th>Tipo</th>
+                <th>Descrição</th>
+                <th>Tamanho</th>
+                <th>Preço</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody id="listaProdutos"></tbody>
+    </table>
+</div>
+
+<script>
+async function carregarProdutos() {
+    const resposta = await fetch("/produtos");
+    const produtos = await resposta.json();
+
+    const tbody = document.getElementById("listaProdutos");
+    tbody.innerHTML = "";
+
+    produtos.forEach(produto => {
+        const tr = document.createElement("tr");
+
+        tr.innerHTML = `
+            <td>${produto.id}</td>
+            <td>${produto.codigo ?? ""}</td>
+            <td>${produto.tipo ?? ""}</td>
+            <td>${produto.descricao ?? ""}</td>
+            <td>${produto.tamanho ?? ""}</td>
+            <td>
+                ${produto.preco
+                ? Number(produto.preco).toFixed(2)
+                : ""}
+            </td>
+            <td>
+                <button onclick="editarProduto(${produto.id})">
+                    Editar
+                </button>
+
+                <button onclick="excluirProduto(${produto.id})">
+                    Excluir
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(tr);
+    });
+}
+
+document.getElementById("formProduto").addEventListener("submit", async function(e) {
+    e.preventDefault();
+
+    const id = this.dataset.id;
+
+    const produto = {
+        codigo: document.getElementById("codigo").value,
+        tipo: document.getElementById("tipo").value,
+        descricao: document.getElementById("descricao").value,
+        tamanho: document.getElementById("tamanho").value,
+        preco: document.getElementById("preco").value
+    };
+
+    if (id) {
+        await fetch("/produtos/" + id, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(produto)
+        });
+
+        delete this.dataset.id;
+        document.getElementById("btnSalvar").innerText = "Cadastrar Produto";
+    } else {
+        await fetch("/produtos", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(produto)
+        });
+    }
+
+    this.reset();
+    carregarProdutos();
+});
+
+async function editarProduto(id) {
+    const resposta = await fetch("/produtos");
+    const produtos = await resposta.json();
+
+    const produto = produtos.find(p => p.id === id);
+
+    document.getElementById("codigo").value = produto.codigo ?? "";
+    document.getElementById("tipo").value = produto.tipo ?? "";
+    document.getElementById("descricao").value = produto.descricao ?? "";
+    document.getElementById("tamanho").value = produto.tamanho ?? "";
+    document.getElementById("preco").value = produto.preco ?? "";
+
+    document.getElementById("formProduto").dataset.id = id;
+    document.getElementById("btnSalvar").innerText = "Salvar Alteração";
+}
+
+async function excluirProduto(id) {
+    if (confirm("Deseja excluir este produto?")) {
+        await fetch("/produtos/" + id, {
+            method: "DELETE"
+        });
+
+        carregarProdutos();
+    }
+}
+
+carregarProdutos();
+</script>
+
+</body>
+<script>
+
+if(
+!sessionStorage.getItem(
+"usuarioLogado"
+)
+){
+
+window.location.href=
+"/login.html";
+
+}
+
+</script>
+</html>

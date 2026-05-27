@@ -1,0 +1,11 @@
+com\tecelagem\sistema\controller\EstoqueController.class
+com\tecelagem\sistema\repository\ProdutoRepository.class
+com\tecelagem\sistema\repository\EstoqueRepository.class
+com\tecelagem\sistema\controller\ProdutoController.class
+com\tecelagem\sistema\controller\UsuarioController.class
+com\tecelagem\sistema\controller\AuthController.class
+com\tecelagem\sistema\repository\UsuarioRepository.class
+com\tecelagem\sistema\model\Usuario.class
+com\tecelagem\sistema\model\Estoque.class
+com\tecelagem\sistema\model\Produto.class
+com\tecelagem\sistema\SistemaApplication.class
